@@ -1,0 +1,78 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Resharper is a .NET coding add-in
+.resharper
+.resharper.user
+*.resharper.user
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+*.sw?
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Diagnostic files
+*.trx
+.coverage
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+
+# NuGet v3's project.json files makes them uncommon to review
+project.lock.json
+project.fragment.lock.json
+
+# Misc files
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.bak
+*~
+
+# OS specific
+.DS_Store
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Local History for Visual Studio Code
+.history/
+.vhistory/
+
+# Test Results
+TestResults/

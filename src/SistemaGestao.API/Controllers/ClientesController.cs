@@ -1,0 +1,129 @@
+using Microsoft.AspNetCore.Mvc;
+using SistemaGestao.Application.DTOs;
+using SistemaGestao.Application.Services;
+using Microsoft.AspNetCore.Authorization;
+
+namespace SistemaGestao.API.Controllers
+{
+    [Authorize] // Protege todos os endpoints por meio de JWT
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ClientesController(IClienteService service) : ControllerBase
+    {
+        private readonly IClienteService _service = service;
+
+        /// <summary>
+        /// Retorna todos os clientes cadastrados.
+        /// </summary>
+        /// <returns>Lista de clientes sem os dados do logotipo.</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            // Retorna DTO Leve (sem imagem) -> Rápido
+            var clientes = await _service.ObterTodosAsync();
+            return Ok(clientes);
+        }
+
+        /// <summary>
+        /// Retorna um cliente pelo ID.
+        /// </summary>
+        /// <param name="id">ID do cliente.</param>
+        /// <returns>Cliente correspondente ao ID fornecido.</returns>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var cliente = await _service.ObterPorIdAsync(id);
+            if (cliente == null) return NotFound();
+            return Ok(cliente);
+        }
+
+        /// <summary>
+        /// Cria um novo cliente com upload de logotipo.
+        /// </summary>
+        /// <param name="model">Modelo contendo os dados do cliente e o arquivo do logotipo.</param>
+        /// <returns>Retorna o cliente criado com seu ID.</returns>
+        [HttpPost]
+        public async Task<IActionResult> Create([FromForm] ClienteUploadModel model)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var dto = new ClienteCreateDto
+            {
+                Nome = model.Nome,
+                Email = model.Email
+            };
+
+            // Conversão IFormFile -> byte[]
+            if (model.Logotipo != null)
+            {
+                using var ms = new MemoryStream();
+                await model.Logotipo.CopyToAsync(ms);
+                dto.Logotipo = ms.ToArray();
+            }
+
+            try
+            {
+                var result = await _service.CriarAsync(dto);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Atualiza um cliente existente com upload de logotipo.
+        /// </summary>
+        /// <param name="id">ID do cliente a ser atualizado.</param>
+        /// <param name="model">Modelo contendo os dados atualizados do cliente e o arquivo do logotipo.</param>
+        /// <returns>Retorna NoContent em caso de sucesso.</returns>
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] ClienteUploadModel model)
+        {
+            var dto = new ClienteDetalheDto
+            {
+                Id = id,
+                Nome = model.Nome,
+                Email = model.Email
+            };
+
+            if (model.Logotipo != null)
+            {
+                using var ms = new MemoryStream();
+                await model.Logotipo.CopyToAsync(ms);
+                dto.Logotipo = ms.ToArray();
+            }
+
+            try
+            {
+                await _service.AtualizarAsync(dto);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Remove um cliente pelo ID.
+        /// </summary>
+        /// <param name="id">ID do cliente a ser removido.</param>
+        /// <returns>Retorna NoContent em caso de sucesso.</returns>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _service.RemoverAsync(id);
+            return NoContent();
+        }
+    }
+
+    // Model específica para entrada na API (Binding do IFormFile)
+    public class ClienteUploadModel
+    {
+        public string Nome { get; set; }
+        public string Email { get; set; }
+        public IFormFile? Logotipo { get; set; }
+    }
+}

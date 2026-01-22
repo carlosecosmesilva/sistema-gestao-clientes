@@ -1,0 +1,13 @@
+﻿<dt class="col-sm-2">Logotipo</dt>
+<dd class="col-sm-10">
+    @if (Model.LogotipoBytes != null && Model.LogotipoBytes.Length > 0)
+    {
+        var base64 = Convert.ToBase64String(Model.LogotipoBytes);
+        var imgSrc = String.Format("data:image/png;base64,{0}", base64);
+        <img src="@imgSrc" style="max-width: 200px;" class="img-thumbnail" />
+    }
+    else
+    {
+        <span>Sem imagem</span>
+    }
+</dd>

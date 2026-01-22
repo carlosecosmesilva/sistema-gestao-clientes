@@ -1,6 +1,37 @@
-@SistemaGestao.API_HostAddress = http://localhost:5208
+@SistemaGestao.API_HostAddress = https://localhost:7000
+# Altere para http://localhost:5000 se não estiver usando HTTPS
 
-GET {{SistemaGestao.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Login (obter token)
+POST {{SistemaGestao.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "admin"
+}
+
+### 2. Listar Clientes (COM autenticação)
+# Copie o token acima e cole no lugar de SEU_TOKEN_AQUI
+GET {{SistemaGestao.API_HostAddress}}/api/clientes
+Authorization: Bearer SEU_TOKEN_AQUI
+
+### 3. Obter Cliente por ID
+GET {{SistemaGestao.API_HostAddress}}/api/clientes/1
+Authorization: Bearer SEU_TOKEN_AQUI
+
+### 4. Criar Cliente (COM autenticação)
+POST {{SistemaGestao.API_HostAddress}}/api/clientes
+Authorization: Bearer SEU_TOKEN_AQUI
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Nome"
+
+Empresa Teste
+------WebKitFormBoundary
+Content-Disposition: form-data; name="Email"
+
+teste@empresa.com
+------WebKitFormBoundary--
 
 ###

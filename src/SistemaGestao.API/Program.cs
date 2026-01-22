@@ -48,8 +48,15 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 // 3. Configuração do JWT (Segurança)
-var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:Secret"]);
+var jwtSecret = builder.Configuration["JwtSettings:Secret"];
+
+if (string.IsNullOrEmpty(jwtSecret))
+    throw new InvalidOperationException("A chave secreta do JWT não está configurada. Verifique 'JwtSettings:Secret' no appsettings.");
+
+var key = Encoding.ASCII.GetBytes(jwtSecret);
+
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

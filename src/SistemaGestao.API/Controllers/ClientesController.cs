@@ -50,7 +50,8 @@ namespace SistemaGestao.API.Controllers
             var dto = new ClienteCreateDto
             {
                 Nome = model.Nome,
-                Email = model.Email
+                Email = model.Email,
+                Telefone = model.Telefone
             };
 
             // Conversão IFormFile -> byte[]
@@ -85,7 +86,8 @@ namespace SistemaGestao.API.Controllers
             {
                 Id = id,
                 Nome = model.Nome,
-                Email = model.Email
+                Email = model.Email,
+                Telefone = model.Telefone
             };
 
             if (model.Logotipo != null)
@@ -122,8 +124,9 @@ namespace SistemaGestao.API.Controllers
     // Model específica para entrada na API (Binding do IFormFile)
     public class ClienteUploadModel
     {
-        public string Nome { get; set; }
-        public string Email { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Telefone { get; set; } = string.Empty;
         public IFormFile? Logotipo { get; set; }
     }
 }

@@ -27,7 +27,10 @@ namespace SistemaGestao.API.Controllers
         private string GenerateJwtToken()
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Secret"]);
+            var secret = _configuration["JwtSettings:Secret"];
+            if (string.IsNullOrEmpty(secret))
+                throw new InvalidOperationException("JwtSettings:Secret não está configurado.");
+            var key = Encoding.ASCII.GetBytes(secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "admin") }),
@@ -41,7 +44,7 @@ namespace SistemaGestao.API.Controllers
 
     public class LoginModel
     {
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

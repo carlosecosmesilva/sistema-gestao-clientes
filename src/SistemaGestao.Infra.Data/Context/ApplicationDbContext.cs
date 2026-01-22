@@ -3,7 +3,7 @@ using SistemaGestao.Domain.Entities;
 
 namespace SistemaGestao.Infra.Data.Context
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options), DbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Logradouro> Logradouros { get; set; }

@@ -6,7 +6,16 @@ namespace SistemaGestao.Domain.Entities
     {
         public Cliente()
         {
-            Logradouros = new List<Logradouro>();
+            Logradouros = [];
+            Nome = string.Empty;
+            Email = string.Empty;
+        }
+
+        public Cliente(string nome, string email)
+        {
+            Nome = nome;
+            Email = email;
+            Logradouros = [];
         }
 
         public int Id { get; set; }

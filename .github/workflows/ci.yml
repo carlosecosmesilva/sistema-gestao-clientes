@@ -1,0 +1,42 @@
+name: CI - Testes Unitários
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout código
+              uses: actions/checkout@v4
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "8.0.x"
+
+            - name: Restaurar dependências
+              run: dotnet restore SistemaGestao.sln
+
+            - name: Build
+              run: dotnet build SistemaGestao.sln --configuration Release --no-restore
+
+            - name: Executar testes - Domain
+              run: dotnet test tests/SistemaGestao.Domain.Tests/SistemaGestao.Domain.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=domain-tests.trx"
+
+            - name: Executar testes - Application
+              run: dotnet test tests/SistemaGestao.Application.Tests/SistemaGestao.Application.Tests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=application-tests.trx"
+
+            - name: Executar testes - Integration
+              run: dotnet test tests/SistemaGestao.API.IntegrationTests/SistemaGestao.API.IntegrationTests.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=integration-tests.trx"
+
+            - name: Upload resultados dos testes
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-results
+                  path: "**/TestResults/*.trx"

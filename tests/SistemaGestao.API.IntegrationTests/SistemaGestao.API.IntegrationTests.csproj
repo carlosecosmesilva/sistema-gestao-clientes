@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SistemaGestao.API\SistemaGestao.API.csproj" />
+  </ItemGroup>
+
 </Project>

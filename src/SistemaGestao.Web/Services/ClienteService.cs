@@ -1,5 +1,6 @@
 ﻿using SistemaGestao.Web.Models;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace SistemaGestao.Web.Services
 {
@@ -24,7 +25,16 @@ namespace SistemaGestao.Web.Services
             var response = await _httpClient.GetAsync("clientes");
             if (!response.IsSuccessStatusCode) return new List<ClienteViewModel>();
 
-            return await response.Content.ReadFromJsonAsync<List<ClienteViewModel>>();
+            var clientes = await response.Content.ReadFromJsonAsync<List<ClienteViewModel>>();
+
+            // Converte bytes para Base64 para exibição
+            foreach (var cliente in clientes ?? [])
+            {
+                if (cliente.LogotipoBytes != null && cliente.LogotipoBytes.Length > 0)
+                    cliente.LogotipoBase64 = Convert.ToBase64String(cliente.LogotipoBytes);
+            }
+
+            return clientes ?? [];
         }
 
         public async Task<ClienteViewModel?> ObterPorId(int id)
@@ -33,7 +43,13 @@ namespace SistemaGestao.Web.Services
             var response = await _httpClient.GetAsync($"clientes/{id}");
             if (!response.IsSuccessStatusCode) return null;
 
-            return await response.Content.ReadFromJsonAsync<ClienteViewModel>();
+            var cliente = await response.Content.ReadFromJsonAsync<ClienteViewModel>();
+
+            // Converte bytes para Base64
+            if (cliente?.LogotipoBytes != null && cliente.LogotipoBytes.Length > 0)
+                cliente.LogotipoBase64 = Convert.ToBase64String(cliente.LogotipoBytes);
+
+            return cliente;
         }
 
         public async Task<bool> Criar(ClienteViewModel model)
@@ -48,6 +64,7 @@ namespace SistemaGestao.Web.Services
             {
                 var fileStream = model.LogotipoUpload.OpenReadStream();
                 var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(model.LogotipoUpload.ContentType);
                 content.Add(fileContent, "Logotipo", model.LogotipoUpload.FileName);
             }
 
@@ -59,6 +76,7 @@ namespace SistemaGestao.Web.Services
         {
             AdicionarToken();
             using var content = new MultipartFormDataContent();
+
             content.Add(new StringContent(model.Nome), "Nome");
             content.Add(new StringContent(model.Email), "Email");
 
@@ -66,6 +84,7 @@ namespace SistemaGestao.Web.Services
             {
                 var fileStream = model.LogotipoUpload.OpenReadStream();
                 var fileContent = new StreamContent(fileStream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(model.LogotipoUpload.ContentType);
                 content.Add(fileContent, "Logotipo", model.LogotipoUpload.FileName);
             }
 
@@ -73,10 +92,11 @@ namespace SistemaGestao.Web.Services
             return response.IsSuccessStatusCode;
         }
 
-        public async Task Deletar(int id)
+        public async Task<bool> Deletar(int id)
         {
             AdicionarToken();
-            await _httpClient.DeleteAsync($"clientes/{id}");
+            var response = await _httpClient.DeleteAsync($"clientes/{id}");
+            return response.IsSuccessStatusCode;
         }
     }
 }

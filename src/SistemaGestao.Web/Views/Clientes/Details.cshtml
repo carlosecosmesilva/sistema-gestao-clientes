@@ -1,13 +1,144 @@
-﻿<dt class="col-sm-2">Logotipo</dt>
-<dd class="col-sm-10">
-    @if (Model.LogotipoBytes != null && Model.LogotipoBytes.Length > 0)
-    {
-        var base64 = Convert.ToBase64String(Model.LogotipoBytes);
-        var imgSrc = String.Format("data:image/png;base64,{0}", base64);
-        <img src="@imgSrc" style="max-width: 200px;" class="img-thumbnail" />
-    }
-    else
-    {
-        <span>Sem imagem</span>
-    }
-</dd>
+﻿@model SistemaGestao.Web.Models.ClienteViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Cliente";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Detalhes do Cliente
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Logotipo -->
+                        @if (!string.IsNullOrEmpty(Model.LogotipoBase64))
+                        {
+                            <div class="col-md-12 text-center mb-4">
+                                <img src="data:image/png;base64,@Model.LogotipoBase64" alt="Logotipo" class="img-thumbnail"
+                                    style="max-width: 300px; max-height: 300px;" />
+                            </div>
+                        }
+
+                        <!-- Informações Básicas -->
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">ID:</label>
+                            <p class="fs-5">@Model.Id</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">Nome da Empresa:</label>
+                            <p class="fs-5">@Model.Nome</p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">E-mail:</label>
+                            <p class="fs-5"><a href="mailto:@Model.Email">@Model.Email</a></p>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="fw-bold text-muted">Telefone:</label>
+                            <p class="fs-5">@(Model.Telefone ?? "Não informado")</p>
+                        </div>
+
+                        <!-- Endereços -->
+                        <div class="col-md-12 mt-4">
+                            <h5 class="border-bottom pb-2">
+                                <i class="bi bi-geo-alt-fill"></i> Endereços
+                            </h5>
+
+                            @if (Model.Logradouros != null && Model.Logradouros.Any())
+                            {
+                                <div class="row">
+                                    @foreach (var logradouro in Model.Logradouros)
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title text-primary">
+                                                        <i class="bi bi-house-door"></i> Endereço #@logradouro.Id
+                                                    </h6>
+                                                    <p class="mb-1">
+                                                        <strong>Rua:</strong> @logradouro.Endereco
+                                                        @if (!string.IsNullOrEmpty(logradouro.Complemento))
+                                                        {
+                                                            <text> - @logradouro.Complemento</text>
+                                                        }
+                                                    </p>
+                                                    <p class="mb-1"><strong>Bairro:</strong> @logradouro.Bairro</p>
+                                                    <p class="mb-1"><strong>Cidade:</strong> @logradouro.Cidade -
+                                                        @logradouro.Estado</p>
+                                                    <p class="mb-0"><strong>CEP:</strong> @logradouro.CEP</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-muted">Nenhum endereço cadastrado.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Voltar para Lista
+                        </a>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <button type="button" class="btn btn-danger"
+                                onclick="confirmarExclusao(@Model.Id, '@Model.Nome')">
+                                <i class="bi bi-trash"></i> Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="modalExcluir" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o cliente <strong id="nomeCliente"></strong>?</p>
+                <p class="text-danger"><i class="bi bi-exclamation-triangle"></i> Esta ação não pode ser desfeita!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="formExcluir" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Excluir</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarExclusao(id, nome) {
+            document.getElementById('nomeCliente').textContent = nome;
+            document.getElementById('formExcluir').action = '/Clientes/Delete/' + id;
+            var modal = new bootstrap.Modal(document.getElementById('modalExcluir'));
+            modal.show();
+        }
+    </script>
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">

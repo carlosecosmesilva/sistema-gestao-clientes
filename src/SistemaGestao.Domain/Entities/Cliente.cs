@@ -21,6 +21,7 @@ namespace SistemaGestao.Domain.Entities
         public int Id { get; set; }
         public string Nome { get; set; }
         public string Email { get; set; }
+        public string? Telefone { get; set; }
         public byte[]? Logotipo { get; set; } // O arquivo em si (blob)
 
         // Relacionamento 1:N

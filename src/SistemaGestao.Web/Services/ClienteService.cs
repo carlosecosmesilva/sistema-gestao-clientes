@@ -55,10 +55,32 @@ namespace SistemaGestao.Web.Services
         public async Task<bool> Criar(ClienteViewModel model)
         {
             AdicionarToken();
-            using var content = new MultipartFormDataContent();
+            using var content = new MultipartFormDataContent
+            {
+                { new StringContent(model.Nome), "Nome" },
+                { new StringContent(model.Email), "Email" }
+            };
 
-            content.Add(new StringContent(model.Nome), "Nome");
-            content.Add(new StringContent(model.Email), "Email");
+            // Adicionar Telefone
+            if (!string.IsNullOrEmpty(model.Telefone))
+            {
+                content.Add(new StringContent(model.Telefone), "Telefone");
+            }
+
+            // Adicionar Logradouros
+            if (model.Logradouros != null && model.Logradouros.Count > 0)
+            {
+                for (int i = 0; i < model.Logradouros.Count; i++)
+                {
+                    var logradouro = model.Logradouros[i];
+                    content.Add(new StringContent(logradouro.Endereco ?? ""), $"Logradouros[{i}].Endereco");
+                    content.Add(new StringContent(logradouro.Complemento ?? ""), $"Logradouros[{i}].Complemento");
+                    content.Add(new StringContent(logradouro.Bairro ?? ""), $"Logradouros[{i}].Bairro");
+                    content.Add(new StringContent(logradouro.Cidade ?? ""), $"Logradouros[{i}].Cidade");
+                    content.Add(new StringContent(logradouro.Estado ?? ""), $"Logradouros[{i}].Estado");
+                    content.Add(new StringContent(logradouro.CEP ?? ""), $"Logradouros[{i}].CEP");
+                }
+            }
 
             if (model.LogotipoUpload != null)
             {
@@ -79,6 +101,31 @@ namespace SistemaGestao.Web.Services
 
             content.Add(new StringContent(model.Nome), "Nome");
             content.Add(new StringContent(model.Email), "Email");
+
+            // Adicionar Telefone
+            if (!string.IsNullOrEmpty(model.Telefone))
+            {
+                content.Add(new StringContent(model.Telefone), "Telefone");
+            }
+
+            // Adicionar Logradouros
+            if (model.Logradouros != null && model.Logradouros.Count > 0)
+            {
+                for (int i = 0; i < model.Logradouros.Count; i++)
+                {
+                    var logradouro = model.Logradouros[i];
+                    if (logradouro.Id > 0)
+                    {
+                        content.Add(new StringContent(logradouro.Id.ToString()), $"Logradouros[{i}].Id");
+                    }
+                    content.Add(new StringContent(logradouro.Endereco ?? ""), $"Logradouros[{i}].Endereco");
+                    content.Add(new StringContent(logradouro.Complemento ?? ""), $"Logradouros[{i}].Complemento");
+                    content.Add(new StringContent(logradouro.Bairro ?? ""), $"Logradouros[{i}].Bairro");
+                    content.Add(new StringContent(logradouro.Cidade ?? ""), $"Logradouros[{i}].Cidade");
+                    content.Add(new StringContent(logradouro.Estado ?? ""), $"Logradouros[{i}].Estado");
+                    content.Add(new StringContent(logradouro.CEP ?? ""), $"Logradouros[{i}].CEP");
+                }
+            }
 
             if (model.LogotipoUpload != null)
             {

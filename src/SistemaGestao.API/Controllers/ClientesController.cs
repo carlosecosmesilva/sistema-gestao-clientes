@@ -62,6 +62,20 @@ namespace SistemaGestao.API.Controllers
                 dto.Logotipo = ms.ToArray();
             }
 
+            // Adicionar Logradouros
+            if (model.Logradouros != null && model.Logradouros.Count > 0)
+            {
+                dto.Logradouros = model.Logradouros.Select(l => new LogradouroDto
+                {
+                    Endereco = l.Endereco,
+                    Complemento = l.Complemento,
+                    Bairro = l.Bairro,
+                    Cidade = l.Cidade,
+                    Estado = l.Estado,
+                    CEP = l.CEP
+                }).ToList();
+            }
+
             try
             {
                 var result = await _service.CriarAsync(dto);
@@ -97,6 +111,21 @@ namespace SistemaGestao.API.Controllers
                 dto.Logotipo = ms.ToArray();
             }
 
+            // Adicionar Logradouros
+            if (model.Logradouros != null && model.Logradouros.Count > 0)
+            {
+                dto.Logradouros = model.Logradouros.Select(l => new LogradouroDto
+                {
+                    Id = l.Id,
+                    Endereco = l.Endereco,
+                    Complemento = l.Complemento,
+                    Bairro = l.Bairro,
+                    Cidade = l.Cidade,
+                    Estado = l.Estado,
+                    CEP = l.CEP
+                }).ToList();
+            }
+
             try
             {
                 await _service.AtualizarAsync(dto);
@@ -128,5 +157,17 @@ namespace SistemaGestao.API.Controllers
         public string Email { get; set; } = string.Empty;
         public string Telefone { get; set; } = string.Empty;
         public IFormFile? Logotipo { get; set; }
+        public List<LogradouroUploadModel> Logradouros { get; set; } = new();
+    }
+
+    public class LogradouroUploadModel
+    {
+        public int Id { get; set; }
+        public string Endereco { get; set; } = string.Empty;
+        public string Complemento { get; set; } = string.Empty;
+        public string Bairro { get; set; } = string.Empty;
+        public string Cidade { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+        public string CEP { get; set; } = string.Empty;
     }
 }

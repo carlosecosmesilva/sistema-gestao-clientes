@@ -4,6 +4,7 @@ using SistemaGestao.Domain.Entities;
 using SistemaGestao.Domain.Interfaces;
 using SistemaGestao.Infra.Data.Context;
 using System.Data;
+using System.Linq;
 
 namespace SistemaGestao.Infra.Data.Repositories
 {
@@ -22,6 +23,7 @@ namespace SistemaGestao.Infra.Data.Repositories
                     Id = c.Id,
                     Nome = c.Nome,
                     Email = c.Email,
+                    Telefone = c.Telefone,
                     // Logotipo é ignorado propositalmente aqui
                     Logradouros = c.Logradouros // Endereços são trazidos se necessário
                 })
@@ -49,6 +51,7 @@ namespace SistemaGestao.Infra.Data.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@Nome", cliente.Nome);
             parameters.Add("@Email", cliente.Email);
+            parameters.Add("@Telefone", cliente.Telefone);
             parameters.Add("@Logotipo", cliente.Logotipo, DbType.Binary);
 
             parameters.Add("@Id", dbType: DbType.Int32, direction: ParameterDirection.Output);
@@ -60,6 +63,30 @@ namespace SistemaGestao.Infra.Data.Repositories
             );
 
             cliente.Id = parameters.Get<int>("@Id");
+
+            // Adicionar logradouros se existirem
+            if (cliente.Logradouros != null && cliente.Logradouros.Any())
+            {
+                foreach (var logradouro in cliente.Logradouros)
+                {
+                    logradouro.ClienteId = cliente.Id;
+                    var logParams = new DynamicParameters();
+                    logParams.Add("@ClienteId", cliente.Id);
+                    logParams.Add("@Endereco", logradouro.Endereco);
+                    logParams.Add("@Complemento", logradouro.Complemento);
+                    logParams.Add("@Bairro", logradouro.Bairro);
+                    logParams.Add("@Cidade", logradouro.Cidade);
+                    logParams.Add("@Estado", logradouro.Estado);
+                    logParams.Add("@CEP", logradouro.CEP);
+
+                    await connection.ExecuteAsync(
+                        "sp_AdicionarLogradouro",
+                        logParams,
+                        commandType: CommandType.StoredProcedure
+                    );
+                }
+            }
+
             return cliente;
         }
 
@@ -71,6 +98,7 @@ namespace SistemaGestao.Infra.Data.Repositories
             parameters.Add("@Id", cliente.Id);
             parameters.Add("@Nome", cliente.Nome);
             parameters.Add("@Email", cliente.Email);
+            parameters.Add("@Telefone", cliente.Telefone);
             parameters.Add("@Logotipo", cliente.Logotipo, DbType.Binary);
 
             await connection.ExecuteAsync(
@@ -78,6 +106,36 @@ namespace SistemaGestao.Infra.Data.Repositories
                 parameters,
                 commandType: CommandType.StoredProcedure
             );
+
+            // Atualizar logradouros
+            if (cliente.Logradouros != null)
+            {
+                // Remover logradouros existentes
+                await connection.ExecuteAsync(
+                    "DELETE FROM Logradouros WHERE ClienteId = @ClienteId",
+                    new { ClienteId = cliente.Id }
+                );
+
+                // Adicionar novos logradouros
+                foreach (var logradouro in cliente.Logradouros)
+                {
+                    logradouro.ClienteId = cliente.Id;
+                    var logParams = new DynamicParameters();
+                    logParams.Add("@ClienteId", cliente.Id);
+                    logParams.Add("@Endereco", logradouro.Endereco);
+                    logParams.Add("@Complemento", logradouro.Complemento);
+                    logParams.Add("@Bairro", logradouro.Bairro);
+                    logParams.Add("@Cidade", logradouro.Cidade);
+                    logParams.Add("@Estado", logradouro.Estado);
+                    logParams.Add("@CEP", logradouro.CEP);
+
+                    await connection.ExecuteAsync(
+                        "sp_AdicionarLogradouro",
+                        logParams,
+                        commandType: CommandType.StoredProcedure
+                    );
+                }
+            }
         }
 
         public async Task RemoverAsync(int id)

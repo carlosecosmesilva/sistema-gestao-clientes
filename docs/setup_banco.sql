@@ -34,6 +34,7 @@ GO
         Id INT IDENTITY(1, 1) PRIMARY KEY,
         Nome VARCHAR(100) NOT NULL,
         Email VARCHAR(100) NOT NULL,
+        Telefone VARCHAR(20) NULL,
         Logotipo VARBINARY(MAX) NULL,
         -- Armazenamento da imagem
         DataCadastro DATETIME DEFAULT GETDATE(),
@@ -85,16 +86,17 @@ GO
     CREATE
     OR ALTER PROCEDURE sp_AdicionarCliente @Nome VARCHAR(100),
     @Email VARCHAR(100),
-    @Logotipo VARBINARY(MAX),
+    @Telefone VARCHAR(20) = NULL,
+    @Logotipo VARBINARY(MAX) = NULL,
     @Id INT OUTPUT AS BEGIN
 SET
     NOCOUNT ON;
 
 -- Melhora performance de rede evitando mensagens desnecessárias
 INSERT INTO
-    Clientes (Nome, Email, Logotipo)
+    Clientes (Nome, Email, Telefone, Logotipo)
 VALUES
-    (@Nome, @Email, @Logotipo);
+    (@Nome, @Email, @Telefone, @Logotipo);
 
 SET
     @Id = SCOPE_IDENTITY();
@@ -107,6 +109,7 @@ GO
     OR ALTER PROCEDURE sp_AtualizarCliente @Id INT,
     @Nome VARCHAR(100),
     @Email VARCHAR(100),
+    @Telefone VARCHAR(20) = NULL,
     @Logotipo VARBINARY(MAX) = NULL AS BEGIN
 SET
     NOCOUNT ON;
@@ -116,6 +119,7 @@ UPDATE
 SET
     Nome = @Nome,
     Email = @Email,
+    Telefone = @Telefone,
     -- Se @Logotipo for NULL, mantém o valor antigo. Se tiver bytes, atualiza.
     Logotipo = ISNULL(@Logotipo, Logotipo)
 WHERE

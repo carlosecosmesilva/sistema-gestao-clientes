@@ -82,3 +82,9 @@ O Front-end estará acessível em `https://localhost:5002`.
 A documentação detalhada da solução, evidenciando como cada requisito foi atendido, juntamente com diagramas e explicações aprofundadas sobre o Front-end e Back-end, encontra-se disponível no diretório de documentação.
 
 [Acesse a Documentação Técnica (docs/)](./docs/)
+
+---
+
+## Informações Adicionais
+
+Projeto em construção contínua e melhorias. :construction:

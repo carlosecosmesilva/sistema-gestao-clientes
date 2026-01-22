@@ -1,1 +1,406 @@
-// Collection do Postman/Insomnia para teste da API
+{
+    "info": {
+        "name": "Sistema Gestão de Clientes API",
+        "description": "Collection completa para testes da API do Sistema de Gestão de Clientes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "version": "1.0.0"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{jwt_token}}",
+                "type": "string"
+            }
+        ]
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "https://localhost:5001",
+            "type": "string"
+        },
+        {
+            "key": "jwt_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "cliente_id",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Autenticação",
+            "item": [
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                                    "    pm.environment.set('jwt_token', jsonData.token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Endpoint para autenticação e obtenção do token JWT"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints de autenticação"
+        },
+        {
+            "name": "Clientes",
+            "item": [
+                {
+                    "name": "Listar Clientes",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Retorna a lista resumida de todos os clientes cadastrados"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Obter Cliente por ID",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('cliente_id', jsonData.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{cliente_id}}"
+                            ]
+                        },
+                        "description": "Retorna os detalhes completos de um cliente específico, incluindo endereços"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Criar Cliente",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var jsonData = pm.response.json();",
+                                    "    pm.collectionVariables.set('cliente_id', jsonData.id);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Empresa Exemplo LTDA\",\n  \"email\": \"contato@empresaexemplo.com.br\",\n  \"logotipo\": null,\n  \"logradouros\": [\n    {\n      \"logradouro\": \"Rua das Flores\",\n      \"numero\": \"123\",\n      \"complemento\": \"Sala 101\",\n      \"bairro\": \"Centro\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01234-567\"\n    },\n    {\n      \"logradouro\": \"Avenida Paulista\",\n      \"numero\": \"1000\",\n      \"complemento\": \"Andar 10\",\n      \"bairro\": \"Bela Vista\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01310-100\"\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Cria um novo cliente com seus endereços"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Atualizar Cliente",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Empresa Exemplo LTDA - Atualizada\",\n  \"email\": \"contato@empresaexemplo.com.br\",\n  \"logotipo\": null,\n  \"logradouros\": [\n    {\n      \"logradouro\": \"Rua das Flores\",\n      \"numero\": \"123\",\n      \"complemento\": \"Sala 102\",\n      \"bairro\": \"Centro\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01234-567\"\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{cliente_id}}"
+                            ]
+                        },
+                        "description": "Atualiza os dados de um cliente existente"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Excluir Cliente",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/{{cliente_id}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{cliente_id}}"
+                            ]
+                        },
+                        "description": "Remove um cliente do sistema"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints para gerenciamento de clientes (CRUD)"
+        },
+        {
+            "name": "Logotipos",
+            "item": [
+                {
+                    "name": "Upload de Logotipo",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "logotipo",
+                                    "type": "file",
+                                    "src": [],
+                                    "description": "Arquivo de imagem do logotipo (PNG, JPG, JPEG)"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/{{cliente_id}}/logotipo",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{cliente_id}}",
+                                "logotipo"
+                            ]
+                        },
+                        "description": "Faz upload do logotipo de um cliente"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Download de Logotipo",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/{{cliente_id}}/logotipo",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "{{cliente_id}}",
+                                "logotipo"
+                            ]
+                        },
+                        "description": "Obtém o logotipo de um cliente"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Endpoints para gerenciamento de logotipos de clientes"
+        },
+        {
+            "name": "Cenários de Teste",
+            "item": [
+                {
+                    "name": "Criar Cliente Sem Endereço (Validação)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Empresa Teste\",\n  \"email\": \"teste@empresa.com\",\n  \"logradouros\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Teste de validação: cliente deve ter pelo menos um endereço"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Criar Cliente Email Duplicado (Validação)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Outra Empresa\",\n  \"email\": \"contato@empresaexemplo.com.br\",\n  \"logradouros\": [\n    {\n      \"logradouro\": \"Rua Teste\",\n      \"numero\": \"1\",\n      \"bairro\": \"Centro\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01234-567\"\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Teste de validação: email deve ser único"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Criar Cliente Email Inválido (Validação)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"nome\": \"Empresa Teste Email\",\n  \"email\": \"email-invalido\",\n  \"logradouros\": [\n    {\n      \"logradouro\": \"Rua Teste\",\n      \"numero\": \"1\",\n      \"bairro\": \"Centro\",\n      \"cidade\": \"São Paulo\",\n      \"estado\": \"SP\",\n      \"cep\": \"01234-567\"\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes"
+                            ]
+                        },
+                        "description": "Teste de validação: formato de email inválido"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Buscar Cliente Inexistente (404)",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/clientes/99999",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "clientes",
+                                "99999"
+                            ]
+                        },
+                        "description": "Teste de erro: busca cliente que não existe"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Cenários de teste para validações e casos de erro"
+        }
+    ]
+}

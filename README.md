@@ -1,23 +1,10 @@
 # Sistema de Gestão de Clientes
 
-Este repositório contém a Prova de Conceito (POC) para o sistema de gestão de clientes, desenvolvida com foco em alta performance, segurança e escalabilidade. A solução foi arquitetada para atender aos requisitos de expansão e garantir integridade de dados além de otimização de recursos.
+Este repositório contém a Prova de Conceito (POC) para o sistema de gestão de clientes, desenvolvida com foco em alta performance, segurança e escalabilidade.
 
 ## Visão Geral do Projeto
 
-A solução foi projetada seguindo os princípios da **Clean Architecture**, visando o desacoplamento entre as regras de negócio, a interface de usuário e a infraestrutura de dados. O sistema permite o gerenciamento completo de clientes (CRUD), incluindo múltiplos endereços e armazenamento de logotipos corporativos, com restrições de unicidade de e-mail e validações de negócio.
-
-### Decisões Arquiteturais
-
-Para atender aos requisitos não funcionais de alta performance e às restrições técnicas impostas, foram adotadas as seguintes estratégias:
-
-- **Persistência Híbrida (CQRS Simplificado):**
-- **Leitura (Query):** Utilização do **Entity Framework Core** com `AsNoTracking` e projeções diretas para DTOs. Isso minimiza o overhead de memória e serialização nas consultas de listagem.
-
-- **Escrita (Command):** Utilização de **Stored Procedures** executadas via **Dapper**. Esta abordagem garante a execução performática de operações transacionais e atende à restrição de uso de procedures para operações complexas.
-
-- **Gerenciamento de BLOBs (Imagens):** Embora as imagens sejam armazenadas no banco de dados (VARBINARY) conforme requisito, a arquitetura implementa o carregamento sob demanda (_Lazy Loading_ manual). As listagens retornam apenas metadados, evitando gargalos de tráfego de rede; o conteúdo binário é trafegado apenas em endpoints específicos de detalhamento.
-
-- **Segurança:** A API implementa autenticação e autorização via JWT (JSON Web Token), garantindo que o acesso, embora público, seja seguro e auditável.
+O sistema permite o gerenciamento completo de clientes (CRUD), incluindo múltiplos endereços e armazenamento de logotipos corporativos, com restrições de unicidade de e-mail e validações de negócio.
 
 ## Tecnologias Utilizadas
 
@@ -37,11 +24,19 @@ A solução foi desenvolvida utilizando as seguintes tecnologias e frameworks:
 
 A solução está organizada em camadas físicas para garantir a separação de responsabilidades:
 
+### Camada de Aplicação
+
 - `src/SistemaGestao.Domain`: Entidades, Interfaces de Repositório e Regras de Negócio.
 - `src/SistemaGestao.Application`: Casos de uso, DTOs e Serviços.
 - `src/SistemaGestao.Infra.Data`: Implementação de persistência (Contexto EF, Repositórios e chamadas de Procedures).
 - `src/SistemaGestao.API`: API RESTful responsável por expor os dados.
 - `src/SistemaGestao.Web`: Aplicação Front-end MVC que consome a API.
+
+### Camada de Testes
+
+- `tests/SistemaGestao.Domain.Tests`: Testes unitários das entidades e validações de domínio.
+- `tests/SistemaGestao.Application.Tests`: Testes unitários dos serviços de aplicação.
+- `tests/SistemaGestao.API.IntegrationTests`: Testes de integração da API.
 
 ## Configuração e Execução
 

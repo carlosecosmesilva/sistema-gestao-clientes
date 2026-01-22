@@ -48,7 +48,11 @@ namespace SistemaGestao.Application.Services
 
         public async Task AtualizarAsync(ClienteDetalheDto dto)
         {
+            var clienteExistente = await _repository.ObterPorIdAsync(dto.Id) ?? throw new Exception("Cliente não encontrado.");
             var cliente = _mapper.Map<Cliente>(dto);
+
+            if (dto.Logotipo == null || dto.Logotipo.Length == 0)
+                cliente.Logotipo = clienteExistente.Logotipo;
 
             // Validação de Regras de Domínio
             var validationResult = await _validator.ValidateAsync(cliente);
